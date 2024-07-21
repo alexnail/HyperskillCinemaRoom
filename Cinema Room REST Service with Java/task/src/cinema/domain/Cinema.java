@@ -13,6 +13,7 @@ public class Cinema {
 
     private int rows;
     private int columns;
+
     private final Map<Seat, Ticket> seats = new ConcurrentHashMap<>();
 
     public Cinema(int rows, int columns) {
@@ -63,5 +64,20 @@ public class Cinema {
         purchased.setToken(null);
         seats.put(purchased.getTicket(), purchased);
         return purchased;
+    }
+
+    public Statistics collectStatistics() {
+        Statistics statistics = new Statistics();
+        statistics.setIncome(seats.values().stream()
+                .filter(ticket -> nonNull(ticket.getToken()))
+                .mapToLong(ticket -> ticket.getTicket().getPrice())
+                .sum());
+        statistics.setAvailable(seats.values().stream()
+                .filter(ticket -> isNull(ticket.getToken()))
+                .count());
+        statistics.setPurchased(seats.values().stream()
+                .filter(ticket -> nonNull(ticket.getToken()))
+                .count());
+        return statistics;
     }
 }

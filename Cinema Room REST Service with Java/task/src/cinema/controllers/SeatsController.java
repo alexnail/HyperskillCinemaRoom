@@ -2,32 +2,36 @@ package cinema.controllers;
 
 import cinema.domain.Cinema;
 import cinema.domain.Seat;
+import cinema.domain.Statistics;
 import cinema.domain.Ticket;
 import cinema.exceptions.InvalidSeatException;
 import cinema.exceptions.TicketUnavailableException;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import cinema.exceptions.WrongPasswordException;
+import cinema.services.CinemaService;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class SeatsController {
 
-    private final Cinema cinema = new Cinema(9, 9);
+    private final CinemaService service;
+
+    public SeatsController(CinemaService service) {
+        this.service = service;
+    }
 
     @GetMapping("/seats")
     public Cinema getAllSeats() {
-        return cinema;
+        return service.getAllSeats();
     }
 
     @PostMapping("/purchase")
     public Ticket purchase(@RequestBody Seat seatRequest) {
-        if (isInvalidSeat(seatRequest)) {
+        if (service.isInvalidSeat(seatRequest)) {
             throw new InvalidSeatException();
         }
 
-        if (cinema.isAvailable(seatRequest)) {
-            return cinema.purchaseSeat(seatRequest);
+        if (service.isAvailable(seatRequest)) {
+            return service.purchaseSeat(seatRequest);
         } else {
             throw new TicketUnavailableException();
         }
@@ -35,11 +39,16 @@ public class SeatsController {
 
     @PostMapping("/return")
     public Ticket returnTicket(@RequestBody Ticket ticketRequest) {
-        return cinema.returnTicket(ticketRequest.getToken());
+        return service.returnTicket(ticketRequest.getToken());
     }
 
-    private boolean isInvalidSeat(Seat seatRequest) {
-        return seatRequest.getRow() < 1 || seatRequest.getRow() > cinema.getRows() ||
-                seatRequest.getColumn() < 1 || seatRequest.getColumn() > cinema.getColumns();
+    @GetMapping("/stats")
+    public Statistics getStatistics(@RequestParam(required = false) String password) {
+        if (!"super_secret".equals(password)) {
+            throw new WrongPasswordException();
+        }
+        return service.getStatistics();
     }
+
+
 }

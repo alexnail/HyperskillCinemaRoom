@@ -14,5 +14,11 @@ public class CinemaExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    @ExceptionHandler(WrongPasswordException.class)
+    public ResponseEntity<CinemaErrorBody> handleException(WrongPasswordException wpe) {
+        CinemaErrorBody body = new CinemaErrorBody(wpe.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
     public record CinemaErrorBody(String error) {}
 }
