@@ -4,18 +4,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static java.util.Objects.isNull;
+
 public class Cinema {
 
     private int rows;
     private int columns;
-    private final Map<Seat, Boolean> seats = new ConcurrentHashMap<>();
+    private final Map<Seat, Ticket> seats = new ConcurrentHashMap<>();
 
     public Cinema(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
         for (int row = 1 ; row <= rows ; row++) {
             for (int col = 1 ; col <= columns ; col++) {
-                seats.put(new Seat(row, col), Boolean.TRUE);
+                seats.put(new Seat(row, col), new Ticket());
             }
         }
     }
@@ -41,11 +43,12 @@ public class Cinema {
     }
 
     public boolean isAvailable(Seat seat) {
-        return seats.get(seat);
+        return isNull(seats.get(seat).getToken());
     }
 
-    public Seat purchaseSeat(Seat seat) {
-        seats.put(seat, Boolean.FALSE);
-        return seat;
+    public Ticket purchaseSeat(Seat seat) {
+        Ticket ticket = new Ticket(seat);
+        seats.put(seat, ticket);
+        return ticket;
     }
 }
