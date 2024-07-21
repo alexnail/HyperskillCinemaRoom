@@ -1,10 +1,13 @@
 package cinema.domain;
 
+import cinema.exceptions.WrongTokenException;
+
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 public class Cinema {
 
@@ -50,5 +53,15 @@ public class Cinema {
         Ticket ticket = new Ticket(seat);
         seats.put(seat, ticket);
         return ticket;
+    }
+
+    public Ticket returnTicket(String token) {
+        Ticket purchased = seats.values().stream()
+                .filter(ticket -> nonNull(ticket.getToken()) && ticket.getToken().equals(token))
+                .findFirst().orElseThrow(WrongTokenException::new);
+
+        purchased.setToken(null);
+        seats.put(purchased.getTicket(), purchased);
+        return purchased;
     }
 }

@@ -1,10 +1,10 @@
 package cinema.controllers;
 
-import cinema.controllers.exception.InvalidSeatException;
-import cinema.controllers.exception.TicketUnavailableException;
 import cinema.domain.Cinema;
 import cinema.domain.Seat;
 import cinema.domain.Ticket;
+import cinema.exceptions.InvalidSeatException;
+import cinema.exceptions.TicketUnavailableException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,6 +31,11 @@ public class SeatsController {
         } else {
             throw new TicketUnavailableException();
         }
+    }
+
+    @PostMapping("/return")
+    public Ticket returnTicket(@RequestBody Ticket ticketRequest) {
+        return cinema.returnTicket(ticketRequest.getToken());
     }
 
     private boolean isInvalidSeat(Seat seatRequest) {
