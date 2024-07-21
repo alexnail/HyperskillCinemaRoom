@@ -1,20 +1,21 @@
 package cinema.domain;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Cinema {
 
     private int rows;
     private int columns;
-    private List<Seat> seats = new ArrayList<>();
+    private final Map<Seat, Boolean> seats = new ConcurrentHashMap<>();
 
     public Cinema(int rows, int columns) {
         this.rows = rows;
         this.columns = columns;
         for (int row = 1 ; row <= rows ; row++) {
             for (int col = 1 ; col <= columns ; col++) {
-                seats.add(new Seat(row, col));
+                seats.put(new Seat(row, col), Boolean.TRUE);
             }
         }
     }
@@ -36,10 +37,15 @@ public class Cinema {
     }
 
     public List<Seat> getSeats() {
-        return seats;
+        return seats.keySet().stream().sorted().toList();
     }
 
-    public void setSeats(List<Seat> seats) {
-        this.seats = seats;
+    public boolean isAvailable(Seat seat) {
+        return seats.get(seat);
+    }
+
+    public Seat purchaseSeat(Seat seat) {
+        seats.put(seat, Boolean.FALSE);
+        return seat;
     }
 }
